@@ -9,28 +9,20 @@ public class FinishLine : MonoBehaviour
     {
         manager = FindObjectOfType<CheckpointManager>();
         GetComponent<Collider>().isTrigger = true;
-
         if (manager == null)
             Debug.LogError("CheckpointManager tidak ditemukan!");
     }
 
     void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Ada yang masuk trigger FINISH: " + other.name);
-
         if (sudahDilewati) return;
 
-        bool isPlayer = other.CompareTag("Player")
-                     || other.transform.root.CompareTag("Player")
-                     || other.name.Contains("mobil")
-                     || other.name.Contains("Car")
-                     || other.name.Contains("Wheel");
+        // Hanya deteksi Player saja
+        if (!other.CompareTag("Player") && 
+            !other.transform.root.CompareTag("Player")) return;
 
-        if (isPlayer)
-        {
-            sudahDilewati = true;
-            if (manager != null) manager.Finish();
-            Debug.Log("FINISH dilewati oleh: " + other.name);
-        }
+        sudahDilewati = true;
+        if (manager != null) manager.Finish();
+        Debug.Log("FINISH dilewati oleh: " + other.name);
     }
 }

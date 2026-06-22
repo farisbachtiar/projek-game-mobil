@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class CheckpointManager : MonoBehaviour
 {
@@ -12,7 +11,8 @@ public class CheckpointManager : MonoBehaviour
     public TextMeshProUGUI startText;
     public TextMeshProUGUI countdownText;
     public GameObject tombolNextLevel;
-    public GameObject tombolRestart; // tambah ini
+    public GameObject tombolRestart;
+    public GameObject tombolMenu; // BARU
 
     [Header("Level")]
     public string namaSceneBerikutnya = "level 2";
@@ -30,7 +30,7 @@ public class CheckpointManager : MonoBehaviour
     private int passedCheckpoints = 0;
     private bool isFinished = false;
     public bool timerBerjalan = false;
-    private Rigidbody mobilRb; // untuk hentikan mobil
+    private Rigidbody mobilRb;
 
     void Start()
     {
@@ -43,8 +43,8 @@ public class CheckpointManager : MonoBehaviour
         if (countdownText) countdownText.gameObject.SetActive(false);
         if (tombolNextLevel) tombolNextLevel.SetActive(false);
         if (tombolRestart) tombolRestart.SetActive(false);
+        if (tombolMenu) tombolMenu.SetActive(false); // BARU
 
-        // Cari Rigidbody mobil
         GameObject mobil = GameObject.FindGameObjectWithTag("Player");
         if (mobil != null)
             mobilRb = mobil.GetComponent<Rigidbody>();
@@ -90,7 +90,6 @@ public class CheckpointManager : MonoBehaviour
         isFinished = true;
         timerBerjalan = false;
 
-        // Hentikan mobil
         if (mobilRb != null)
         {
             mobilRb.linearVelocity = Vector3.zero;
@@ -98,7 +97,6 @@ public class CheckpointManager : MonoBehaviour
             mobilRb.isKinematic = true;
         }
 
-        // Tampilkan teks waktu habis
         if (finishText)
         {
             finishText.gameObject.SetActive(true);
@@ -106,11 +104,8 @@ public class CheckpointManager : MonoBehaviour
             finishText.text = "WAKTU HABIS!\nCoba Lagi?";
         }
 
-        // Tampilkan tombol restart
-        if (tombolRestart)
-            tombolRestart.SetActive(true);
-
-        Debug.Log("Waktu habis! Mobil berhenti.");
+        if (tombolRestart) tombolRestart.SetActive(true);
+        if (tombolMenu) tombolMenu.SetActive(true); // BARU
     }
 
     public void MulaiTimer()
@@ -136,6 +131,31 @@ public class CheckpointManager : MonoBehaviour
     public void Finish()
     {
         if (isFinished) return;
+
+        if (passedCheckpoints < totalCheckpoints)
+        {
+            isFinished = true;
+            timerBerjalan = false;
+
+            if (finishText)
+            {
+                finishText.gameObject.SetActive(true);
+                finishText.color = Color.red;
+                finishText.text = "GAME OVER!\nLewati Semua Checkpoint Dulu!";
+            }
+
+            if (mobilRb != null)
+            {
+                mobilRb.linearVelocity = Vector3.zero;
+                mobilRb.angularVelocity = Vector3.zero;
+                mobilRb.isKinematic = true;
+            }
+
+            if (tombolRestart) tombolRestart.SetActive(true);
+            if (tombolMenu) tombolMenu.SetActive(true); // BARU
+            return;
+        }
+
         isFinished = true;
         timerBerjalan = false;
 
@@ -152,8 +172,8 @@ public class CheckpointManager : MonoBehaviour
                                menit, detik, milidetik);
         }
 
-        if (tombolNextLevel)
-            tombolNextLevel.SetActive(true);
+        if (tombolNextLevel) tombolNextLevel.SetActive(true);
+        if (tombolMenu) tombolMenu.SetActive(true); // BARU
     }
 
     public void NextLevel()
@@ -161,14 +181,14 @@ public class CheckpointManager : MonoBehaviour
         SceneManager.LoadScene(namaSceneBerikutnya);
     }
 
-    // Dipanggil tombol Restart
     public void Restart()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    void PindahLevel()
+    public void KembaliMenu()
     {
-        SceneManager.LoadScene(namaSceneBerikutnya);
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("MainMenu");
     }
 }
